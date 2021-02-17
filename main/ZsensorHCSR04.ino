@@ -44,8 +44,8 @@ void MeasureDistance() {
   if (millis() > (timeHCSR04 + TimeBetweenReadingHCSR04)) {
     timeHCSR04 = millis();
     Log.trace(F("Creating HCSR04 buffer" CR));
-    StaticJsonBuffer<JSON_MSG_BUFFER> jsonBuffer;
-    JsonObject& HCSR04data = jsonBuffer.createObject();
+    StaticJsonDocument<JSON_MSG_BUFFER> jsonBuffer;
+    JsonObject HCSR04data = jsonBuffer.createObject();
     digitalWrite(HCSR04_TRI_GPIO, LOW);
     delayMicroseconds(2);
     digitalWrite(HCSR04_TRI_GPIO, HIGH);

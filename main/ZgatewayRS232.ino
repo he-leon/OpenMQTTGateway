@@ -69,7 +69,7 @@ void RS232toMQTT() {
   }
 }
 
-void MQTTtoRS232(char* topicOri, JsonObject& RS232data) {
+void MQTTtoRS232(char* topicOri, JsonObject RS232data) {
   Log.trace(F("json" CR));
   if (cmpToMainTopic(topicOri, subjectMQTTtoRS232)) {
     Log.trace(F("MQTTtoRS232 json" CR));

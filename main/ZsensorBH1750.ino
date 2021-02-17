@@ -54,8 +54,8 @@ void setupZsensorBH1750() {
 void MeasureLightIntensity() {
   if (millis() > (timebh1750 + TimeBetweenReadingBH1750)) { //retrieving value of Lux, FtCd and Wattsm2 from BH1750
     Log.trace(F("Creating BH1750 buffer" CR));
-    StaticJsonBuffer<JSON_MSG_BUFFER> jsonBuffer;
-    JsonObject& BH1750data = jsonBuffer.createObject();
+    StaticJsonDocument<JSON_MSG_BUFFER> jsonBuffer;
+    JsonObject BH1750data = jsonBuffer.createObject();
 
     timebh1750 = millis();
     unsigned int i = 0;

@@ -98,7 +98,7 @@ boolean FASTLEDtoMQTT() {
   return false;
 }
 #  ifdef jsonReceiving
-void MQTTtoFASTLED(char* topicOri, JsonObject& jsonData) {
+void MQTTtoFASTLED(char* topicOri, JsonObject jsonData) {
   currentLEDState = GENERAL;
   //trc(topicOri);
   //number = (long)strtol(&datacallback[1], NULL, 16);

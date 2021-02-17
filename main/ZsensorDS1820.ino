@@ -136,8 +136,8 @@ void MeasureDS1820Temp() {
       Log.error(F("DS1820: Failed to identify any temperature sensors on 1-wire bus during setup!" CR));
     } else {
       Log.trace(F("DS1820: Reading temperature(s) from %d sensor(s)..." CR), ds1820_count);
-      StaticJsonBuffer<JSON_MSG_BUFFER> jsonBuffer;
-      JsonObject& DS1820data = jsonBuffer.createObject();
+      StaticJsonDocument<JSON_MSG_BUFFER> jsonBuffer;
+      JsonObject DS1820data = jsonBuffer.createObject();
 
       for (uint8_t i = 0; i < ds1820_count; i++) {
         current_temp[i] = round(ds1820.getTempC(ds1820_devices[i]) * 10) / 10.0;

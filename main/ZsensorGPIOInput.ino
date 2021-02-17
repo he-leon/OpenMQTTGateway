@@ -63,8 +63,8 @@ void MeasureGPIOInput() {
       InputState = reading;
       Log.trace(F("Creating GPIOInput buffer" CR));
       const int JSON_MSG_CALC_BUFFER = JSON_OBJECT_SIZE(1);
-      StaticJsonBuffer<JSON_MSG_CALC_BUFFER> jsonBuffer;
-      JsonObject& GPIOdata = jsonBuffer.createObject();
+      StaticJsonDocument<JSON_MSG_CALC_BUFFER> jsonBuffer;
+      JsonObject GPIOdata = jsonBuffer.createObject();
       if (InputState == HIGH) {
         GPIOdata.set("gpio", "HIGH");
       }

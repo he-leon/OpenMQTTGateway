@@ -80,8 +80,8 @@ bool _2GtoMQTT() {
   // Get the memory locations of unread SMS messages.
   unreadSMSNum = A6l.getUnreadSMSLocs(unreadSMSLocs, 512);
   Log.trace(F("Creating SMS  buffer" CR));
-  StaticJsonBuffer<JSON_MSG_BUFFER> jsonBuffer;
-  JsonObject& SMSdata = jsonBuffer.createObject();
+  StaticJsonDocument<JSON_MSG_BUFFER> jsonBuffer;
+  JsonObject SMSdata = jsonBuffer.createObject();
   for (int i = 0; i < unreadSMSNum; i++) {
     Log.notice(F("New  message at index: %d" CR), unreadSMSNum);
     sms = A6l.readSMS(unreadSMSLocs[i]);
@@ -127,7 +127,7 @@ void MQTTto2G(char* topicOri, char* datacallback) {
 #  endif
 
 #  ifdef jsonReceiving
-void MQTTto2G(char* topicOri, JsonObject& SMSdata) {
+void MQTTto2G(char* topicOri, JsonObject SMSdata) {
   if (cmpToMainTopic(topicOri, subjectMQTTto2G)) {
     const char* sms = SMSdata["message"];
     const char* phone = SMSdata["phone"];

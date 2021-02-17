@@ -115,8 +115,8 @@ void IRtoMQTT() {
 
   if (irrecv.decode(&results)) {
     Log.trace(F("Creating IR buffer" CR));
-    StaticJsonBuffer<JSON_MSG_BUFFER> jsonBuffer;
-    JsonObject& IRdata = jsonBuffer.createObject();
+    StaticJsonDocument<JSON_MSG_BUFFER> jsonBuffer;
+    JsonObject IRdata = jsonBuffer.createObject();
 
     Log.trace(F("Rcv. IR" CR));
 #  ifdef ESP32
@@ -182,7 +182,7 @@ void IRtoMQTT() {
 bool sendIdentifiedProtocol(const char* protocol_name, SIGNAL_SIZE_UL_ULL data, const char* hex, unsigned int valueBITS, uint16_t valueRPT);
 
 #  ifdef jsonReceiving
-void MQTTtoIR(char* topicOri, JsonObject& IRdata) {
+void MQTTtoIR(char* topicOri, JsonObject IRdata) {
   if (cmpToMainTopic(topicOri, subjectMQTTtoIR)) {
     Log.trace(F("MQTTtoIR json" CR));
     uint64_t data = IRdata["value"];

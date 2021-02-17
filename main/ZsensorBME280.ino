@@ -126,8 +126,8 @@ void MeasureTempHumAndPressure() {
       Log.error(F("Failed to read from BME280!" CR));
     } else {
       Log.trace(F("Creating BME280 buffer" CR));
-      StaticJsonBuffer<JSON_MSG_BUFFER> jsonBuffer;
-      JsonObject& BME280data = jsonBuffer.createObject();
+      StaticJsonDocument<JSON_MSG_BUFFER> jsonBuffer;
+      JsonObject BME280data = jsonBuffer.createObject();
       // Generate Temperature in degrees C
       if (BmeTempC != persisted_bme_tempc || bme280_always) {
         BME280data.set("tempc", (float)BmeTempC);

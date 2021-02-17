@@ -102,8 +102,8 @@ void _rfbDecode() {
     _rfbToChar(&_uartbuf[1], buffer);
 
     Log.trace(F("Creating SRFB buffer" CR));
-    StaticJsonBuffer<JSON_MSG_BUFFER> jsonBuffer;
-    JsonObject& SRFBdata = jsonBuffer.createObject();
+    StaticJsonDocument<JSON_MSG_BUFFER> jsonBuffer;
+    JsonObject SRFBdata = jsonBuffer.createObject();
     SRFBdata.set("raw", String(buffer).substring(0, 18));
 
     int val_Tsyn = (int)(int)value_from_hex_data(buffer, 0, 4, false, false);
@@ -263,7 +263,7 @@ void MQTTtoSRFB(char* topicOri, char* datacallback) {
 }
 #  endif
 #  ifdef jsonReceiving
-void MQTTtoSRFB(char* topicOri, JsonObject& SRFBdata) {
+void MQTTtoSRFB(char* topicOri, JsonObject SRFBdata) {
   // RF DATA ANALYSIS
   const char* raw = SRFBdata["raw"];
   int valueRPT = SRFBdata["repeat"] | 1;

@@ -83,8 +83,8 @@ void MeasureTempHum() {
       Log.error(F("Failed to read from sensor HTU21!" CR));
     } else {
       Log.notice(F("Creating HTU21 buffer" CR));
-      StaticJsonBuffer<JSON_MSG_BUFFER> jsonBuffer;
-      JsonObject& HTU21data = jsonBuffer.createObject();
+      StaticJsonDocument<JSON_MSG_BUFFER> jsonBuffer;
+      JsonObject HTU21data = jsonBuffer.createObject();
       // Generate Temperature in degrees C
       if (HtuTempC != persisted_htu_tempc || htu21_always) {
         float HtuTempF = (HtuTempC * 1.8) + 32;

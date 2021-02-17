@@ -109,7 +109,7 @@ BLEdevice* getDeviceByMac(const char* mac) {
   return &NO_DEVICE_FOUND;
 }
 
-bool updateWorB(JsonObject& BTdata, bool isWhite) {
+bool updateWorB(JsonObject BTdata, bool isWhite) {
   Log.trace(F("update WorB" CR));
   const char* jsonKey = isWhite ? "white-list" : "black-list";
 
@@ -411,8 +411,8 @@ static int taskCore = 0;
 class MyAdvertisedDeviceCallbacks : public BLEAdvertisedDeviceCallbacks {
   void onResult(BLEAdvertisedDevice* advertisedDevice) {
     Log.trace(F("Creating BLE buffer" CR));
-    StaticJsonBuffer<JSON_MSG_BUFFER> jsonBuffer;
-    JsonObject& BLEdata = jsonBuffer.createObject();
+    StaticJsonDocument<JSON_MSG_BUFFER> jsonBuffer;
+    JsonObject BLEdata = jsonBuffer.createObject();
     String mac_adress = advertisedDevice->getAddress().toString().c_str();
     mac_adress.toUpperCase();
     BLEdata.set("id", (char*)mac_adress.c_str());
@@ -502,8 +502,8 @@ void notifyCB(
 
     if (length == 5) {
       Log.trace(F("Device identified creating BLE buffer" CR));
-      StaticJsonBuffer<JSON_MSG_BUFFER> jsonBuffer;
-      JsonObject& BLEdata = jsonBuffer.createObject();
+      StaticJsonDocument<JSON_MSG_BUFFER> jsonBuffer;
+      JsonObject BLEdata = jsonBuffer.createObject();
       String mac_adress = pBLERemoteCharacteristic->getRemoteService()->getClient()->getPeerAddress().toString().c_str();
       mac_adress.toUpperCase();
       for (vector<BLEdevice>::iterator p = devices.begin(); p != devices.end(); ++p) {
@@ -786,8 +786,8 @@ bool BTtoMQTT() {
           restData = token.substring(d[5].start, (d[5].start + restDataLength));
 
         Log.trace(F("Creating BLE buffer" CR));
-        StaticJsonBuffer<JSON_MSG_BUFFER> jsonBuffer;
-        JsonObject& BLEdata = jsonBuffer.createObject();
+        StaticJsonDocument<JSON_MSG_BUFFER> jsonBuffer;
+        JsonObject BLEdata = jsonBuffer.createObject();
 
         Log.trace(F("Id %s" CR), (char*)mac.c_str());
         BLEdata.set("id", (char*)mac.c_str());
@@ -813,7 +813,7 @@ bool BTtoMQTT() {
 }
 #  endif
 
-void RemoveJsonPropertyIf(JsonObject& obj, char* key, bool condition) {
+void RemoveJsonPropertyIf(JsonObject obj, char* key, bool condition) {
   if (condition) {
     Log.trace(F("Removing %s" CR), key);
     obj.remove(key);
@@ -858,9 +858,9 @@ void launchDiscovery() {
   }
 }
 
-void PublishDeviceData(JsonObject& BLEdata) {
+void PublishDeviceData(JsonObject BLEdata) {
   if (abs((int)BLEdata["rssi"] | 0) < minRssi) { // process only the devices close enough
-    JsonObject& BLEdataOut = process_bledata(BLEdata);
+    JsonObject BLEdataOut = process_bledata(BLEdata);
     if (!publishOnlySensors || BLEdataOut.containsKey("model")) {
 #  if !pubBLEServiceUUID
       RemoveJsonPropertyIf(BLEdataOut, "servicedatauuid", BLEdataOut.containsKey("servicedatauuid"));
@@ -878,7 +878,7 @@ void PublishDeviceData(JsonObject& BLEdata) {
   }
 }
 
-JsonObject& process_bledata(JsonObject& BLEdata) {
+JsonObject process_bledata(JsonObject BLEdata) {
   const char* mac = BLEdata["id"].as<const char*>();
   BLEdevice* device = getDeviceByMac(mac);
   if (BLEdata.containsKey("servicedata")) {
@@ -1057,7 +1057,7 @@ JsonObject& process_bledata(JsonObject& BLEdata) {
   return BLEdata;
 }
 
-JsonObject& process_sensors(int offset, JsonObject& BLEdata) {
+JsonObject process_sensors(int offset, JsonObject BLEdata) {
   const char* servicedata = BLEdata["servicedata"].as<const char*>();
   int data_length = 0;
 
@@ -1121,7 +1121,7 @@ JsonObject& process_sensors(int offset, JsonObject& BLEdata) {
   return BLEdata;
 }
 
-JsonObject& process_scale_v1(JsonObject& BLEdata) {
+JsonObject process_scale_v1(JsonObject BLEdata) {
   const char* servicedata = BLEdata["servicedata"].as<const char*>();
 
   double weight = (double)value_from_hex_data(servicedata, 2, 4, true) / 200;
@@ -1132,7 +1132,7 @@ JsonObject& process_scale_v1(JsonObject& BLEdata) {
   return BLEdata;
 }
 
-JsonObject& process_scale_v2(JsonObject& BLEdata) {
+JsonObject process_scale_v2(JsonObject BLEdata) {
   const char* servicedata = BLEdata["servicedata"].as<const char*>();
 
   double weight = (double)value_from_hex_data(servicedata, 22, 4, true) / 200;
@@ -1145,7 +1145,7 @@ JsonObject& process_scale_v2(JsonObject& BLEdata) {
   return BLEdata;
 }
 
-JsonObject& process_inkbird(JsonObject& BLEdata) {
+JsonObject process_inkbird(JsonObject BLEdata) {
   const char* manufacturerdata = BLEdata["manufacturerdata"].as<const char*>();
 
   double temperature = (double)value_from_hex_data(manufacturerdata, 0, 4, true) / 100;
@@ -1162,7 +1162,7 @@ JsonObject& process_inkbird(JsonObject& BLEdata) {
   return BLEdata;
 }
 
-JsonObject& process_miband(JsonObject& BLEdata) {
+JsonObject process_miband(JsonObject BLEdata) {
   const char* servicedata = BLEdata["servicedata"].as<const char*>();
 
   double steps = (double)value_from_hex_data(servicedata, 0, 4, true);
@@ -1173,7 +1173,7 @@ JsonObject& process_miband(JsonObject& BLEdata) {
   return BLEdata;
 }
 
-JsonObject& process_milamp(JsonObject& BLEdata) {
+JsonObject process_milamp(JsonObject BLEdata) {
   const char* servicedata = BLEdata["servicedata"].as<const char*>();
 
   long darkness = (double)value_from_hex_data(servicedata, 8, 2, true);
@@ -1185,7 +1185,7 @@ JsonObject& process_milamp(JsonObject& BLEdata) {
   return BLEdata;
 }
 
-JsonObject& process_cleargrass(JsonObject& BLEdata, boolean air) {
+JsonObject process_cleargrass(JsonObject BLEdata, boolean air) {
   const char* servicedata = BLEdata["servicedata"].as<const char*>();
 
   double value = 9999;
@@ -1206,7 +1206,7 @@ JsonObject& process_cleargrass(JsonObject& BLEdata, boolean air) {
   return BLEdata;
 }
 
-JsonObject& process_atc(JsonObject& BLEdata) {
+JsonObject process_atc(JsonObject BLEdata) {
   const char* servicedata = BLEdata["servicedata"].as<const char*>();
 
   double temperature = (double)value_from_hex_data(servicedata, 12, 4, false) / 10;
@@ -1224,7 +1224,7 @@ JsonObject& process_atc(JsonObject& BLEdata) {
   return BLEdata;
 }
 
-JsonObject& process_inode_em(JsonObject& BLEdata) {
+JsonObject process_inode_em(JsonObject BLEdata) {
   const char* manufacturerdata = BLEdata["manufacturerdata"].as<const char*>();
 
   long impPerKWh = value_from_hex_data(manufacturerdata, 16, 4, true) & 0x3FFF;
@@ -1241,7 +1241,7 @@ JsonObject& process_inode_em(JsonObject& BLEdata) {
 }
 
 #  ifdef subjectHomePresence
-void haRoomPresence(JsonObject& HomePresence) {
+void haRoomPresence(JsonObject HomePresence) {
   int BLErssi = HomePresence["rssi"];
   Log.trace(F("BLErssi %d" CR), BLErssi);
   int txPower = HomePresence["txpower"] | 0;
@@ -1262,7 +1262,7 @@ void haRoomPresence(JsonObject& HomePresence) {
 }
 #  endif
 
-void MQTTtoBT(char* topicOri, JsonObject& BTdata) { // json object decoding
+void MQTTtoBT(char* topicOri, JsonObject BTdata) { // json object decoding
   if (cmpToMainTopic(topicOri, subjectMQTTtoBTset)) {
     Log.trace(F("MQTTtoBT json set" CR));
 

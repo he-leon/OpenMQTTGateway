@@ -25,6 +25,8 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+
+
 #ifndef user_config_h
 #define user_config_h
 /*-------------------VERSION----------------------*/
@@ -83,10 +85,10 @@ const byte mac[] = {0xDE, 0xED, 0xBA, 0xFE, 0x54, 0x95}; //W5100 ethernet shield
 
 #if defined(ESPWifiManualSetup) // for nodemcu, weemos and esp8266
 #  ifndef wifi_ssid
-#    define wifi_ssid "wifi ssid"
+#    define wifi_ssid ""
 #  endif
 #  ifndef wifi_password
-#    define wifi_password "wifi password"
+#    define wifi_password ""
 #  endif
 #endif
 
@@ -327,7 +329,7 @@ uint8_t wifiProtocol = 0; // default mode, automatic selection
 #endif
 
 #ifdef ESP8266
-//#  define TRIGGER_GPIO 14 // pin D5 as full reset button (long press >10s)
+#  define TRIGGER_GPIO 0 // pin D3 as full reset button (long press >10s)
 #elif ESP32
 //#  define TRIGGER_GPIO 0 // boot button as full reset button (long press >10s)
 #endif
@@ -384,6 +386,6 @@ uint8_t wifiProtocol = 0; // default mode, automatic selection
 #define subjectMQTTtoSYSset          "/commands/MQTTtoSYS/config"
 
 /*-------------------DEFINE LOG LEVEL----------------------*/
-#define LOG_LEVEL LOG_LEVEL_NOTICE
+#define LOG_LEVEL LOG_LEVEL_TRACE
 
 #endif

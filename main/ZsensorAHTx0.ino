@@ -86,8 +86,8 @@ void MeasureAHTTempHum() {
       Log.error(F("Failed to read from sensor AHTx0!" CR));
     } else {
       Log.notice(F("Creating AHTx0 buffer" CR));
-      StaticJsonBuffer<JSON_MSG_BUFFER> jsonBuffer;
-      JsonObject& AHTx0data = jsonBuffer.createObject();
+      StaticJsonDocument<JSON_MSG_BUFFER> jsonBuffer;
+      JsonObject AHTx0data = jsonBuffer.createObject();
       // Generate Temperature in degrees C
       if (ahtTempC.temperature != persisted_aht_tempc || AHTx0_always) {
         float ahtTempF = convertTemp_CtoF(ahtTempC.temperature);

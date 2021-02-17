@@ -52,7 +52,7 @@ void setupSomfy() {
 }
 
 #  ifdef jsonReceiving
-void MQTTtoSomfy(char* topicOri, JsonObject& jsonData) {
+void MQTTtoSomfy(char* topicOri, JsonObject jsonData) {
   if (cmpToMainTopic(topicOri, subjectMQTTtoSomfy)) {
 #    ifdef ZradioCC1101
     ELECHOUSE_cc1101.SetTx(CC1101_FREQUENCY_SOMFY);

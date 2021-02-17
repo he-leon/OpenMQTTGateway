@@ -23,6 +23,8 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+#include <ArduinoJson.h>
+
 #include "User_config.h"
 
 #ifdef ZmqttDiscovery
@@ -64,6 +66,53 @@ void createDiscoveryFromList(char* mac, char* sensorList[][8], int sensorCount,
 }
 #  endif
 
+#  ifdef ZgatewayLoRaNow
+void createTriggerDiscovery(char* topic, char* unique_id,
+                            char* device_name, char* device_manufacturer, char* device_model, char* device_mac) {
+  const int JSON_MSG_CALC_BUFFER = JSON_OBJECT_SIZE(14) + JSON_OBJECT_SIZE(5) + JSON_ARRAY_SIZE(1);
+  StaticJsonDocument<JSON_MSG_BUFFER> jsonBuffer;
+  JsonObject sensor = jsonBuffer.to<JsonObject>();
+
+  if (topic[0]) {
+    char top[mqtt_topic_max_size];
+    strcpy(top, "+/+");
+    strcat(top, topic);
+    sensor["topic"] = top;
+  }
+  // Might be useful to use arguments for these. No need for that right now.
+  sensor["automation_type"] = "trigger";
+  sensor["type"] = "button_short_press";
+  sensor["subtype"] = "button_1";
+
+  char deviceid[13];
+  memcpy(deviceid, &unique_id[0], 12);
+  deviceid[12] = '\0';
+  StaticJsonDocument<JSON_MSG_BUFFER> jsonDeviceBuffer;
+  JsonObject device = jsonDeviceBuffer.to<JsonObject>();
+  if (device_mac != "") {
+    JsonArray connections = device.createNestedArray("connections");
+    JsonArray connection_mac = connections.createNestedArray();
+    connection_mac.add("mac");
+    connection_mac.add(device_mac);
+  }
+  JsonArray identifiers = device.createNestedArray("identifiers");
+  identifiers.add(deviceid);
+  if (device_manufacturer[0]) {
+    device["manufacturer"] = device_manufacturer;
+  }
+  if (device_model[0]) {
+    device["model"] = device_model;
+  }
+  if (device_name[0]) {
+    device["name"] = device_name;
+  }
+  device["via_device"] = gateway_name; //device name of the board
+  sensor["device"] = device; //device representing the actual sensor/switch device
+  String pub_topic = String(discovery_Topic) + "/" + "device_automation" + "/" + String(unique_id) + "/config";
+  pub_custom_topic((char*)pub_topic.c_str(), sensor, true);
+}
+# endif
+
 void createDiscovery(char* sensor_type,
                      char* st_topic, char* s_name, char* unique_id,
                      char* availability_topic, char* device_class, char* value_template,
@@ -72,8 +121,8 @@ void createDiscovery(char* sensor_type,
                      char* payload_available, char* payload_not_avalaible, bool gateway_entity, char* cmd_topic,
                      char* device_name, char* device_manufacturer, char* device_model, char* device_mac) {
   const int JSON_MSG_CALC_BUFFER = JSON_OBJECT_SIZE(14) + JSON_OBJECT_SIZE(5) + JSON_ARRAY_SIZE(1);
-  StaticJsonBuffer<JSON_MSG_CALC_BUFFER> jsonBuffer;
-  JsonObject& sensor = jsonBuffer.createObject();
+  StaticJsonDocument<JSON_MSG_BUFFER> jsonBuffer;
+  JsonObject sensor = jsonBuffer.to<JsonObject>();
 
   // If a component cannot render it's state (f.i. KAKU relays) no state topic
   // should be added. Without a state topic HA will use optimistic mode for the
@@ -87,73 +136,86 @@ void createDiscovery(char* sensor_type,
     // allowing to have the entity detected by several gateways and a consistent discovery topic among the gateways
     gateway_entity ? strcpy(state_topic, mqtt_topic) : strcpy(state_topic, "+/+");
     strcat(state_topic, st_topic);
-    sensor.set("stat_t", state_topic);
+    sensor["stat_t"] = state_topic;
+
+    #  ifdef ZgatewayLoRaNow
+    if (!gateway_entity)
+    {
+        sensor["json_attr_t"] = state_topic;
+        //sensor["json_attr_tpl"] = "{{ value_json | tojson }}"; 
+    }
+    # endif
+
+
+
   }
 
-  sensor.set("name", s_name); //name
-  sensor.set("uniq_id", unique_id); //unique_id
+  sensor["name"] = s_name; //name
+  sensor["uniq_id"] = unique_id; //unique_id
   if (device_class[0])
-    sensor.set("dev_cla", device_class); //device_class
+    sensor["dev_cla"] = device_class; //device_class
   if (value_template[0])
-    sensor.set("val_tpl", value_template); //value_template
+    sensor["val_tpl"] = value_template; //value_template
   if (payload_on[0])
-    sensor.set("pl_on", payload_on); // payload_on
+    sensor["pl_on"] = payload_on; // payload_on
   if (payload_off[0])
-    sensor.set("pl_off", payload_off); //payload_off
+    sensor["pl_off"] = payload_off; //payload_off
   if (unit_of_meas[0])
-    sensor.set("unit_of_meas", unit_of_meas); //unit_of_measurement*/
+    sensor["unit_of_meas"] = unit_of_meas; //unit_of_measurement*/
   if (off_delay != 0)
-    sensor.set("off_delay", off_delay); //off_delay
+    sensor["off_delay"] = off_delay; //off_delay
   if (payload_available[0])
-    sensor.set("pl_avail", payload_available); // payload_on
+    sensor["pl_avail"] = payload_available; // payload_on
   if (payload_not_avalaible[0])
-    sensor.set("pl_not_avail", payload_not_avalaible); //payload_off
+    sensor["pl_not_avail"] = payload_not_avalaible; //payload_off
 
   if (cmd_topic[0]) {
     char command_topic[mqtt_topic_max_size];
     strcpy(command_topic, mqtt_topic);
     strcat(command_topic, cmd_topic);
-    sensor.set("cmd_t", command_topic); //command_topic
+    sensor["cmd_t"] = command_topic; //command_topic
   }
 
+  
+
   if (gateway_entity) {
-    StaticJsonBuffer<JSON_MSG_BUFFER> jsonDeviceBuffer;
-    JsonObject& device = jsonDeviceBuffer.createObject();
+    //StaticJsonDocument<JSON_MSG_BUFFER> jsonDeviceBuffer;
+    //JsonObject device = jsonDeviceBuffer.to<JsonObject>();
+    JsonObject device = sensor.createNestedObject("device");
     char JSONmessageBuffer[JSON_MSG_BUFFER];
-    modules.printTo(JSONmessageBuffer, sizeof(JSONmessageBuffer));
+    serializeJson(modules, JSONmessageBuffer, sizeof(JSONmessageBuffer));
     Log.notice(F("Received json : %s" CR), JSONmessageBuffer);
-    device.set("name", gateway_name);
-    device.set("model", JSONmessageBuffer);
-    device.set("manufacturer", DEVICEMANUFACTURER);
-    device.set("sw_version", OMG_VERSION);
-    JsonArray& identifiers = device.createNestedArray("identifiers");
+    device["model"] = JSONmessageBuffer;
+    device["name"] = gateway_name;
+    device["manufacturer"] = DEVICEMANUFACTURER;
+    device["sw_version"] = OMG_VERSION;
+    JsonArray identifiers = device.createNestedArray("identifiers");
     identifiers.add(getMacAddress());
-    sensor.set("device", device); //device representing the board
   } else {
     char deviceid[13];
     memcpy(deviceid, &unique_id[0], 12);
     deviceid[12] = '\0';
-    StaticJsonBuffer<JSON_MSG_BUFFER> jsonDeviceBuffer;
-    JsonObject& device = jsonDeviceBuffer.createObject();
+    StaticJsonDocument<JSON_MSG_BUFFER> jsonDeviceBuffer;
+    JsonObject device = jsonDeviceBuffer.to<JsonObject>();
     if (device_mac != "") {
-      JsonArray& connections = device.createNestedArray("connections");
-      JsonArray& connection_mac = connections.createNestedArray();
+      JsonArray connections = device.createNestedArray("connections");
+      JsonArray connection_mac = connections.createNestedArray();
       connection_mac.add("mac");
       connection_mac.add(device_mac);
     }
-    JsonArray& identifiers = device.createNestedArray("identifiers");
+    JsonArray identifiers = device.createNestedArray("identifiers");
     identifiers.add(deviceid);
     if (device_manufacturer[0]) {
-      device.set("manufacturer", device_manufacturer);
+      device["manufacturer"] = device_manufacturer;
     }
     if (device_model[0]) {
-      device.set("model", device_model);
+      device["model"] = device_model;
     }
     if (device_name[0]) {
-      device.set("name", device_name);
+      device["name"] = device_name;
     }
-    device.set("via_device", gateway_name); //device name of the board
-    sensor.set("device", device); //device representing the actual sensor/switch device
+    device["via_device"] = gateway_name; //device name of the board
+    sensor["device"] = device; //device representing the actual sensor/switch device
   }
   String topic = String(discovery_Topic) + "/" + String(sensor_type) + "/" + String(unique_id) + "/config";
   pub_custom_topic((char*)topic.c_str(), sensor, true);

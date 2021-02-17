@@ -34,7 +34,13 @@
 #  include <Wire.h>
 
 void setupLORA() {
+#  ifdef ESP8266
+  SPI.begin();
+#  endif
+
+#  ifdef ESP32
   SPI.begin(LORA_SCK, LORA_MISO, LORA_MOSI, LORA_SS);
+#  endif
   LoRa.setPins(LORA_SS, LORA_RST, LORA_DI0);
 
   if (!LoRa.begin(LORA_BAND)) {
@@ -55,8 +61,8 @@ void setupLORA() {
 void LORAtoMQTT() {
   int packetSize = LoRa.parsePacket();
   if (packetSize) {
-    StaticJsonBuffer<JSON_MSG_BUFFER> jsonBuffer;
-    JsonObject& LORAdata = jsonBuffer.createObject();
+    StaticJsonDocument<JSON_MSG_BUFFER> jsonBuffer;
+    JsonObject LORAdata = jsonBuffer.createObject();
     Log.trace(F("Rcv. LORA" CR));
 #  ifdef ESP32
     String taskMessage = "LORA Task running on core ";
@@ -82,7 +88,7 @@ void LORAtoMQTT() {
 }
 
 #  ifdef jsonReceiving
-void MQTTtoLORA(char* topicOri, JsonObject& LORAdata) { // json object decoding
+void MQTTtoLORA(char* topicOri, JsonObject LORAdata) { // json object decoding
   if (cmpToMainTopic(topicOri, subjectMQTTtoLORA)) {
     Log.trace(F("MQTTtoLORA json" CR));
     const char* message = LORAdata["message"];

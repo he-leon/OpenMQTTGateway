@@ -36,7 +36,7 @@ extern void MQTTtoLORA(char* topicOri, JsonObject& RFdata);
 #define subjectGTWLORAtoMQTT "/LORAtoMQTT"
 
 //Default parameters used when the parameters are not set in the json data
-#define LORA_BAND             868E6
+#define LORA_BAND             433.375E6
 #define LORA_SIGNAL_BANDWIDTH 125E3
 #define LORA_TX_POWER         17
 #define LORA_SPREADING_FACTOR 7
@@ -48,6 +48,7 @@ extern void MQTTtoLORA(char* topicOri, JsonObject& RFdata);
 #define repeatLORAwMQTT false // do we repeat a received signal by using mqtt with LORA gateway
 
 /*-------------------PIN DEFINITIONS----------------------*/
+# ifdef ESP32
 //TTGO LORA BOARD ESP32 PIN DEFINITION
 #define LORA_SCK  5 // GPIO5  -- SX1278's SCK
 #define LORA_MISO 19 // GPIO19 -- SX1278's MISO
@@ -55,5 +56,17 @@ extern void MQTTtoLORA(char* topicOri, JsonObject& RFdata);
 #define LORA_SS   18 // GPIO18 -- SX1278's CS
 #define LORA_RST  14 // GPIO14 -- SX1278's RESET
 #define LORA_DI0  26 // GPIO26 -- SX1278's IRQ(Interrupt Request)
+#endif
+
+# ifdef ESP8266
+// ESP8266 DIY with RFM9x
+#define LORA_SCK  14 // GPIO5  -- SX1278's SCK
+#define LORA_MISO 12 // GPIO19 -- SX1278's MISO
+#define LORA_MOSI 13 // GPIO27 -- SX1278's MOSI
+#define LORA_SS   15 // GPIO18 -- SX1278's CS
+#define LORA_RST  4  // GPIO14 -- SX1278's RESET
+#define LORA_DI0  5  // GPIO26 -- SX1278's IRQ(Interrupt Request)
+#endif
+
 
 #endif

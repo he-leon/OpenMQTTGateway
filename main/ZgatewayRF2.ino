@@ -73,7 +73,7 @@ void setupRF2() {
 
 #  ifdef ZmqttDiscovery
 //Register for autodiscover in Home Assistant
-void RF2toMQTTdiscovery(JsonObject& data) {
+void RF2toMQTTdiscovery(JsonObject data) {
   Log.trace(F("switchRF2Discovery" CR));
   String payloadonstr;
   String payloadoffstr;
@@ -120,8 +120,8 @@ void RF2toMQTT() {
   if (rf2rd.hasNewData) {
     Log.trace(F("Creating RF2 buffer" CR));
     const int JSON_MSG_CALC_BUFFER = JSON_OBJECT_SIZE(5);
-    StaticJsonBuffer<JSON_MSG_CALC_BUFFER> jsonBuffer;
-    JsonObject& RF2data = jsonBuffer.createObject();
+    StaticJsonDocument<JSON_MSG_CALC_BUFFER> jsonBuffer;
+    JsonObject RF2data = jsonBuffer.createObject();
 
     rf2rd.hasNewData = false;
 
@@ -259,7 +259,7 @@ void MQTTtoRF2(char* topicOri, char* datacallback) {
 #  endif
 
 #  ifdef jsonReceiving
-void MQTTtoRF2(char* topicOri, JsonObject& RF2data) { // json object decoding
+void MQTTtoRF2(char* topicOri, JsonObject RF2data) { // json object decoding
 #    ifdef ZradioCC1101
   NewRemoteReceiver::disable();
   ELECHOUSE_cc1101.SetTx(CC1101_FREQUENCY); // set Transmit on

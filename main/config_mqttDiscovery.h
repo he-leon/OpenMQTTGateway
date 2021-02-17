@@ -39,6 +39,9 @@ extern void createDiscovery(char* sensor_type,
                             char* payload_available, char* payload_not_avalaible, bool gateway_entity, char* command_topic,
                             char* device_name, char* device_manufacturer, char* device_model, char* device_mac);
 
+void createTriggerDiscovery(char* topic, char* unique_id,
+                     char* device_name, char* device_manufacturer, char* device_model, char* device_mac);
+
 #define discovery_Topic "homeassistant"
 
 #define DEVICEMANUFACTURER "OMG_community"
@@ -103,6 +106,8 @@ extern void createDiscovery(char* sensor_type,
 #  define jsonAdc      "{{ value_json.adc | is_defined }}"
 #  define jsonPa       "{{ float(value_json.pa) * 0.01 | is_defined }}"
 #  define jsonId       "{{ value_json.id | is_defined }}"
+#  define jsonRSSI       "{{ value_json.rssi | is_defined }}"
+#  define jsonSNR       "{{ value_json.snr | is_defined }}"
 #endif
 
 #endif

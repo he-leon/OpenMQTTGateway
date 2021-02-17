@@ -90,8 +90,8 @@ void MeasureLightIntensityTSL2561() {
     timetsl2561 = millis();
 
     Log.trace(F("Creating TSL2561 buffer" CR));
-    StaticJsonBuffer<JSON_MSG_BUFFER> jsonBuffer;
-    JsonObject& TSL2561data = jsonBuffer.createObject();
+    StaticJsonDocument<JSON_MSG_BUFFER> jsonBuffer;
+    JsonObject TSL2561data = jsonBuffer.createObject();
 
     sensors_event_t event;
     tsl.getEvent(&event);

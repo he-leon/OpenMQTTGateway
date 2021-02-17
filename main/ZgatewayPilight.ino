@@ -40,10 +40,10 @@ void pilightCallback(const String& protocol, const String& message, int status,
                      size_t repeats, const String& deviceID) {
   if (status == VALID) {
     Log.trace(F("Creating RF PiLight buffer" CR));
-    StaticJsonBuffer<JSON_MSG_BUFFER> jsonBuffer;
-    JsonObject& RFPiLightdata = jsonBuffer.createObject();
-    StaticJsonBuffer<JSON_MSG_BUFFER> jsonBuffer2;
-    JsonObject& msg = jsonBuffer2.parseObject(message);
+    StaticJsonDocument<JSON_MSG_BUFFER> jsonBuffer;
+    JsonObject RFPiLightdata = jsonBuffer.createObject();
+    StaticJsonDocument<JSON_MSG_BUFFER> jsonBuffer2;
+    JsonObject msg = jsonBuffer2.parseObject(message);
     RFPiLightdata.set("message", msg);
     RFPiLightdata.set("protocol", (char*)protocol.c_str());
     RFPiLightdata.set("length", (char*)deviceID.c_str());
@@ -96,7 +96,7 @@ void PilighttoMQTT() {
   rf.loop();
 }
 
-void MQTTtoPilight(char* topicOri, JsonObject& Pilightdata) {
+void MQTTtoPilight(char* topicOri, JsonObject Pilightdata) {
 #  ifdef ZradioCC1101
   ELECHOUSE_cc1101.SetTx(CC1101_FREQUENCY); // set Transmit on
   rf.disableReceiver();

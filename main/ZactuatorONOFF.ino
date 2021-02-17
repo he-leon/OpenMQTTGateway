@@ -31,7 +31,7 @@
 #ifdef ZactuatorONOFF
 
 #  ifdef jsonReceiving
-void MQTTtoONOFF(char* topicOri, JsonObject& ONOFFdata) {
+void MQTTtoONOFF(char* topicOri, JsonObject ONOFFdata) {
   if (cmpToMainTopic(topicOri, subjectMQTTtoONOFF)) {
     Log.trace(F("MQTTtoONOFF json data analysis" CR));
     int boolSWITCHTYPE = ONOFFdata["cmd"] | 99;

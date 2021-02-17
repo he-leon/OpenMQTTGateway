@@ -77,8 +77,8 @@ void setupRF() {
 void RFtoMQTT() {
   if (mySwitch.available()) {
     const int JSON_MSG_CALC_BUFFER = JSON_OBJECT_SIZE(4);
-    StaticJsonBuffer<JSON_MSG_CALC_BUFFER> jsonBuffer;
-    JsonObject& RFdata = jsonBuffer.createObject();
+    StaticJsonDocument<JSON_MSG_CALC_BUFFER> jsonBuffer;
+    JsonObject RFdata = jsonBuffer.createObject();
     Log.trace(F("Rcv. RF" CR));
 #  ifdef ESP32
     Log.trace(F("RF Task running on core :%d" CR), xPortGetCoreID());
@@ -169,7 +169,7 @@ void MQTTtoRF(char* topicOri, char* datacallback) {
 #  endif
 
 #  ifdef jsonReceiving
-void MQTTtoRF(char* topicOri, JsonObject& RFdata) { // json object decoding
+void MQTTtoRF(char* topicOri, JsonObject RFdata) { // json object decoding
 #    ifdef ZradioCC1101 // set Receive off and Transmitt on
   ELECHOUSE_cc1101.SetTx(CC1101_FREQUENCY);
   mySwitch.disableReceive();
