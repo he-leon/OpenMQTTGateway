@@ -1,3 +1,5 @@
+## Experimental LoRaNow/CayenneLPP version
+
 This is an exprimental version which supports LoRa Nodes using the LoRaNow library and Cayenne LPP. The core of OpenMQTTGateway was ported to ArduinoJSON 6 which was required to use Cayenne LPP. All other Modules in this branch are broken until they are ported to ArduinoJSON 6. 
 
 The hardware for this experimental setup consists of a NodeMCU and a SX1278 LoRa module. The Gateway listens to LoRaNow messages with a Cayenne LPP payload and decodes each channel and publishes the values in separate MQTT channels. MQTT-discovery messages for Home Assistant are also generated. All avaialable LoRaNow nodes and according sensor values should automatically appear in Home Assistant.  
